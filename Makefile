@@ -1,5 +1,5 @@
 test:
-	pytest timeline/tests/
+	pytest tests/
 
 clean:
 	@rm -rf .Python MANIFEST build dist venv* *.egg-info *.egg .eggs .cache

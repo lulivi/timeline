@@ -1,12 +1,8 @@
 """Test suite for historic_date module."""
 
 import unittest
-import os
 from timeline import HistoricDate
-from timeline import settings
-
-
-INPUT_FILE = os.path.join(settings.DATA_DIR, 'test_input.txt')
+from .constants import (TEST_DATA_FILE, TEST_FAIL_DATA_FILE)
 
 
 class HistoricDateTest(unittest.TestCase):
@@ -37,29 +33,31 @@ class HistoricDateTest(unittest.TestCase):
         self.assertRaises(TypeError, f)
 
         def f() -> None:
-            HistoricDate(event=('One event'))
+            HistoricDate(events=('One event'))
 
         self.assertRaises(TypeError, f)
 
     def test1_set_get_year(self) -> None:
         """Test year setter and getter."""
+        expected_value = 2015
         self.hd.year = 2015
         returned_value = self.hd.year
 
-        self.assertEqual(2015, returned_value, 'Year returning is wrong')
+        self.assertEqual(expected_value, returned_value,
+                         'Year returning is wrong')
 
         def f() -> None:
-            self.hd.year = '2015'
+            self.hd.year = str(2015)
 
         self.assertRaises(TypeError, f)
 
     def test2_set_get_events(self) -> None:
         """Test events setter and getter."""
-        test_events = ['Third event', 'Forth event']
-        self.hd.events = test_events
+        expected_value = ['Third event', 'Forth event']
+        self.hd.events = ['Third event', 'Forth event']
         returned_value = self.hd.events
 
-        self.assertEqual(test_events, returned_value,
+        self.assertEqual(expected_value, returned_value,
                          'Wrong events returned')
 
         def f() -> None:
@@ -69,24 +67,38 @@ class HistoricDateTest(unittest.TestCase):
 
     def test3_event_amount(self) -> None:
         """Test events amount funciton."""
+        expected_value = 2
         returned_value = self.hd.events_amount()
 
-        self.assertEqual(2, returned_value, 'message')
+        self.assertEqual(expected_value, returned_value, 'message')
         self.assertTrue(isinstance(returned_value, int), 'message')
 
     def test4_add_event(self) -> None:
         """Test events addition."""
+        expected_value = ['First event', 'Second event', 'New event']
         self.hd.add_event('New event')
         returned_value = self.hd.events
 
-        self.assertEqual(['New event'], returned_value, 'message')
+        self.assertEqual(expected_value, returned_value, 'message')
 
         def f() -> None:
             self.hd.add_event(1994)
 
         self.assertRaises(TypeError, f)
 
-    def test5_delete_event(self) -> None:
+    def test5_search_event(self) -> None:
+        """Test events search."""
+        expected_value = 'Second event'
+        returned_value = self.hd.search_event('Second')
+
+        self.assertEqual(expected_value, returned_value, 'message')
+
+        def f() -> None:
+            self.hd.search_event(1994)
+
+        self.assertRaises(TypeError, f)
+
+    def test6_delete_event(self) -> None:
         """Test events deletion."""
         self.hd.events = ['New event']
         self.hd.delete_event('New ev')
@@ -99,9 +111,10 @@ class HistoricDateTest(unittest.TestCase):
 
         self.assertRaises(TypeError, f)
 
-    def test6_read_historic_date(self) -> None:
+    def test7_read_historic_date(self) -> None:
         """Test reading method."""
-        fd = open(INPUT_FILE, 'r')
+        fd = open(TEST_DATA_FILE, 'r')
+        fd_f = open(TEST_FAIL_DATA_FILE, 'r')
         repr_func = "HistoricDate(1900, ['Sherlock Holmes Baffled', "\
                     "'The Enchanted Drawing'])"
         null_pointer = None
@@ -113,5 +126,10 @@ class HistoricDateTest(unittest.TestCase):
 
         def f() -> None:
             self.hd.read_historic_date(null_pointer)
+
+        self.assertRaises(TypeError, f)
+
+        def f() -> None:
+            self.hd.read_historic_date(fd_f)
 
         self.assertRaises(TypeError, f)
